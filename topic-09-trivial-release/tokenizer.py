@@ -24,6 +24,10 @@ patterns = [
     [r"or", "||"],  # alternate for ||
     [r"not", "!"],  # alternate for !
     [r"[a-zA-Z_][a-zA-Z0-9_]*", "identifier"],  # identifiers
+    [r"\+=", "+="],
+    [r"-=", "-="],
+    [r"\*=", "*="],
+    [r"\/=", "/="],
     [r"\+", "+"],
     [r"\-", "-"],
     [r"\*", "*"],
@@ -262,11 +266,26 @@ def test_error():
         assert "Syntax error" in error_string
         assert "illegal character" in error_string
 
+# test cases for compound assignments
+def test_compound_assignment_tokens():
+    print("testing compound assignment tokens...")
+    test_cases = [
+        ("+=", "x += 5"),
+        ("-=", "x -= 5"),
+        ("*=", "x *= 5"),
+        ("/=", "x /= 5"),
+    ]
+    for op, example in test_cases:
+        t = tokenize(example)
+        assert any(token['tag'] == op for token in t), f"Failed to recognize {op} operator"
 
 def test_tag_coverage():
     print("testing comprehensive tag coverage...")
     for pattern, tag in patterns:
         assert tag in test_generated_tags, f"Tag [ {tag} ] was not tested."
+
+
+
 
 
 if __name__ == "__main__":
@@ -281,5 +300,6 @@ if __name__ == "__main__":
     test_keywords()
     test_comments()
     test_error()
+    test_compound_assignment_tokens()
     test_tag_coverage()
     print("done.")

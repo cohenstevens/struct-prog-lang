@@ -90,6 +90,36 @@ def evaluate(ast, environment):
         right_value, _ = evaluate(ast["right"], environment)
         return left_value != right_value, False
 
+
+    if ast["tag"] == "+=":
+        left_value, _ = evaluate(ast["left"], environment)
+        right_value, _ = evaluate(ast["right"], environment)
+        current_value = left_value + right_value
+        environment[ast["left"]["value"]] = current_value
+        return current_value, None
+
+    if ast["tag"] == "-=":
+        left_value, _ = evaluate(ast["left"], environment)
+        right_value, _ = evaluate(ast["right"], environment)
+        current_value = left_value - right_value
+        environment[ast["left"]["value"]] = current_value
+        return current_value, None
+
+    if ast["tag"] == "*=":
+        left_value, _ = evaluate(ast["left"], environment)
+        right_value, _ = evaluate(ast["right"], environment)
+        current_value = left_value * right_value
+        environment[ast["left"]["value"]] = current_value
+        return current_value, None
+
+    if ast["tag"] == "/=":
+        left_value, _ = evaluate(ast["left"], environment)
+        right_value, _ = evaluate(ast["right"], environment)
+        current_value = left_value / right_value
+        environment[ast["left"]["value"]] = current_value
+        return current_value, None
+
+
     if ast["tag"] == "print":
         if ast["value"]:
             value, _ = evaluate(ast["value"], environment)
@@ -282,6 +312,13 @@ def test_evaluate_negation():
     print("test evaluate negation")
     equals("-2", {}, -2, {})
     equals("--3", {}, 3, {})
+
+
+def test_evaluate_compound():
+    print("test evaluate compound")
+    equals("i = 1; i+=5", {}, 6, {"i" : 6})
+    equals("8/4/2", {}, 1, {})
+
 
 
 def test_evaluate_print_statement():
@@ -535,4 +572,5 @@ if __name__ == "__main__":
     test_evaluate_return_statement()
     test_evaluate_list_literal()
     test_evaluate_object_literal()
+    test_evaluate_compound()
     print("done.")

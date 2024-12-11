@@ -502,7 +502,7 @@ def parse_arithmetic_term(tokens):
     arithmetic_term = arithmetic_factor { ("*" | "/") arithmetic_factor } ;
     """
     node, tokens = parse_arithmetic_factor(tokens)
-    while tokens[0]["tag"] in ["*", "/"]:
+    while tokens[0]["tag"] in ["*", "/", "*=", "/="]: # adding new tokens for compound arithmetic
         tag = tokens[0]["tag"]
         next_node, tokens = parse_arithmetic_factor(tokens[1:])
         node = {"tag": tag, "left": node, "right": next_node}
@@ -520,6 +520,20 @@ def test_parse_arithmetic_term():
     ast, tokens = parse_arithmetic_term(tokenize("x*y"))
     assert ast == {
         "tag": "*",
+        "left": {"tag": "identifier", "value": "x"},
+        "right": {"tag": "identifier", "value": "y"},
+    }
+
+    ast, tokens = parse_arithmetic_term(tokenize("x*=y"))  # test cases for  times equals
+    assert ast == {
+        "tag": "*=",
+        "left": {"tag": "identifier", "value": "x"},
+        "right": {"tag": "identifier", "value": "y"},
+    }
+
+    ast, tokens = parse_arithmetic_term(tokenize("x/=y")) # test cases for division equals
+    assert ast == {
+        "tag": "/=",
         "left": {"tag": "identifier", "value": "x"},
         "right": {"tag": "identifier", "value": "y"},
     }
@@ -548,7 +562,7 @@ def parse_arithmetic_expression(tokens):
     arithmetic_expression = arithmetic_term { ("+" | "-") arithmetic_term } ;
     """
     node, tokens = parse_arithmetic_term(tokens)
-    while tokens[0]["tag"] in ["+", "-"]:
+    while tokens[0]["tag"] in ["+", "-", "+=", "-="]: # new tags for arithmetic expressions
         tag = tokens[0]["tag"]
         next_node, tokens = parse_arithmetic_term(tokens[1:])
         node = {"tag": tag, "left": node, "right": next_node}
@@ -564,6 +578,20 @@ def test_parse_arithmetic_expression():
         "tag": "identifier",
         "value": "x",
     }
+    
+    # new test cases for += and -=
+    assert parse_arithmetic_expression(tokenize("x+=y"))[0] == {
+        "tag": "+=",
+        "left": {"tag": "identifier", "value": "x"},
+        "right": {"tag": "identifier", "value": "y"},
+    }
+    assert parse_arithmetic_expression(tokenize("x-=y"))[0] == {
+        "tag": "-=",
+        "left": {"tag": "identifier", "value": "x"},
+        "right": {"tag": "identifier", "value": "y"},
+    }
+
+
     assert parse_arithmetic_expression(tokenize("x*y"))[0] == {
         "tag": "*",
         "left": {"tag": "identifier", "value": "x"},
